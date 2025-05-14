@@ -2,6 +2,7 @@ import sys
 import hashlib
 import json
 import requests
+import uuid
 
 from time import time
 from uuid import uuid4
@@ -33,15 +34,15 @@ class Blockchain(object):
       self.nodes = []
 
       self.users = '''{
-        "asdhaidhalsidhaslihdas" : 0
-      }
-     '''
+      
+      }'''
       self.user = json.loads(self.users)      
       self.delaytransaction = []
 
       self.sender = ""
       self.recipient = ""
       self.amount = ""
+      self.password = ""
       
       self.chain = []
 
@@ -106,7 +107,16 @@ class Blockchain(object):
 
         return False
 
+    def add_user(self, password):
+      password = self.generate_sha256(password)
 
+      wallet = uuid.uuid4().hex
+
+      blockchain.user[wallet] = {
+           "balance": 1.0,
+           "password": password
+      }
+      return wallet
 
 
     def proof_of_work(self, index, hash_of_previous_block, transaction):
@@ -140,7 +150,12 @@ class Blockchain(object):
         self.chain.append(block)
 
         return block
-       
+
+    def generate_sha256(self, password):
+        sha256_hash = hashlib.sha256()
+
+        sha256_hash.update(password.encode())
+        return sha256_hash.hexdigest()
 
     def add_transaction(self):
         self.current_transaction.append(self.delaytransaction)
@@ -203,13 +218,11 @@ def mine_block():
     }
     
     blockchain.reward(
-        miner=''.join([char for index, char in enumerate(values['wallet']) if index != 0]),
-        amount=2,
+        miner=values['wallet'],
+        amount=0.00005,
     )
-
-    wallet = ''.join([char for index, char in enumerate(values['wallet']) if index != 0])
     
-    blockchain.user[wallet] += 0.00005
+    blockchain.user[values['wallet']]['balance'] += 0.00005
     
     blockchain.add_transaction()
 
@@ -219,16 +232,28 @@ def mine_block():
 
  else:
     response = {
-        'message': "block failed to create (nothing transaction)",
+        'message': "block failed to create (nothing transaction) or your wallet is invalid",
         'error':'404',
     }
     return jsonify(response), 200
+
+@app.route('/user/new', methods=['POST'])
+def new_user():
+    values = request.get_json()
+    
+    required_fields = ['password']
+    if not all(k in values for k in required_fields):
+        return jsonify({'message': 'Missing fields'}), 400
+
+    create_user = blockchain.add_user(values['password'])
+    return jsonify({'message': 'Successfully created your wallet is: ' + create_user})
+
 
 @app.route('/transaction/new', methods=['POST'])
 def new_transaction():
     values = request.get_json()
 
-    required_fields = ['sender', 'recipient', 'amount']
+    required_fields = ['sender', 'recipient', 'amount', 'password']
     if not all(k in values for k in required_fields):
         return jsonify({'message': 'Missing fields'}), 400
 
@@ -243,21 +268,37 @@ def new_transaction():
 
     blockchain.sender = values['sender'];
     blockchain.recipient = values['recipient'];
-    blockchain.amount = values['amount'];
+    blockchain.amount = float(values['amount']);
+    blockchain.password = values['password'];
 
-    blockchain.delaytransaction.append({
-       'amount' : blockchain.amount,
-       'sender': blockchain.sender,
-       'recipient': blockchain.recipient,
-    })
+    # sender = ''.join([char for index, char in enumerate(values['sender']) if index != 0])
 
-    blockchain.sender = "";
-    blockchain.recipient = "";
-    blockchain.amount = "";
+    password = blockchain.generate_sha256(blockchain.password)
 
-    return jsonify({'message': 'Transaction successfully created'}), 200
-    # else:
-    #     return jsonify({'message': 'Transaction failed'}), 400
+    if(password == blockchain.user[blockchain.sender]['password']):
+        if (float(blockchain.user[values['sender']]['balance']) - blockchain.amount >= 0.000):
+            if (values['sender'] != values['recipient']):
+                blockchain.user[values['sender']]['balance'] -= blockchain.amount
+                blockchain.user[values['recipient']]['balance'] += blockchain.amount
+                
+                blockchain.delaytransaction.append({
+                    'amount' : blockchain.amount,
+                    'sender': blockchain.sender,
+                    'recipient': blockchain.recipient,
+                })
+            else:
+                return jsonify({'message': "You can't send coin in your own wallet"})
+        else:
+            return jsonify({'message': 'Your balance not Enough to do Transaction'})
+
+        blockchain.sender = "";
+        blockchain.recipient = "";
+        blockchain.amount = "";
+        blockchain.password = "";
+
+        return jsonify({'message': 'Transaction successfully created'}), 200
+    else:
+        return jsonify({'message': 'Transaction failed'}), 400
 
 # add nodes 
 @app.route('/add/node', methods=['GET'])
@@ -283,7 +324,6 @@ def sync():
            'nodes': list(blockchain.nodes)
     }
     return jsonify(response), 200
-
 
 
 if __name__ == '__main__':
