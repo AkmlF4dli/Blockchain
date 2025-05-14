@@ -33,11 +33,7 @@ class Blockchain(object):
       self.nodes = []
 
       self.users = '''{
-        "asdhaidhalsidhaslihdas" : {
-          "name" : "Akmal",
-          "balance" : 2,
-          "wallet": "asdhaidhalsidhaslihdas"
-        }
+        "asdhaidhalsidhaslihdas" : 0
       }
      '''
       self.user = json.loads(self.users)      
@@ -213,7 +209,7 @@ def mine_block():
 
     wallet = ''.join([char for index, char in enumerate(values['wallet']) if index != 0])
     
-    blockchain.user[wallet]["balance"] += 2
+    blockchain.user[wallet] += 0.00005
     
     blockchain.add_transaction()
 
@@ -291,7 +287,7 @@ def sync():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=int(8000))
+    app.run(host="0.0.0.0", port=int(sys.argv[1]))
 
 
 
