@@ -95,14 +95,17 @@ class Blockchain(object):
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
-
+                user = chain[0].get('user', {})
+                
                 if length > max_length and self.valid_chain(chain):
                     max_length = length
                     max_chain = chain
                     new_chain = chain
+                    new_user = user
 
                 if new_chain:
                     self.chain = new_chain
+                    self.user = new_user
                     return True
 
         return False
@@ -145,6 +148,7 @@ class Blockchain(object):
             'nonce': nonce,
             'hash_of_previous_block': hash_of_previous_block,
             'user' : self.user,
+
         }
 
         self.chain.append(block)
