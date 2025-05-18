@@ -189,6 +189,9 @@ blockchain = Blockchain()
 
 @app.route('/blockchain', methods=['GET'])
 def full_chain():
+    for node in blockchain.nodes:
+        requests.get('http://{node}/nodes/sync')
+
     response = {
         'chain': blockchain.chain,
         'length': len(blockchain.chain),
