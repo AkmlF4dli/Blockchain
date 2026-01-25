@@ -275,7 +275,7 @@ def new_transaction():
 
     blockchain.sender = values['sender'];
     blockchain.recipient = values['recipient'];
-    blockchain.amount = float(values['amount']);
+    blockchain.amount = round(float(values['amount']), 2);
     blockchain.password = values['password'];
 
     # sender = ''.join([char for index, char in enumerate(values['sender']) if index != 0])
