@@ -14,11 +14,13 @@ from flask.json import jsonify
 from urllib.parse import urlparse
 
 class Blockchain(object):
-    difficulty_target = "00000"
+    difficulty_bits = 20
+    difficulty_target = 2**(256 - difficulty_bits)
 
     def hash_block(self, block):
       block_encoded = json.dumps(block, sort_keys=True).encode()
-      return hashlib.sha256(block_encoded).hexdigest()
+      inner_hash = hashlib.sha256(block_encoded).digest()
+      return hashlib.sha256(inner_hash).hexdigest()
 
 
     def adddelay(self):    
@@ -29,7 +31,8 @@ class Blockchain(object):
         })
 
     def __init__(self):
-
+      self.initial_reward = 50.0
+      self.halving_interval = 210000
       self.addnode = ""
       self.nodes = []
 
@@ -116,7 +119,7 @@ class Blockchain(object):
       wallet = uuid.uuid4().hex
 
       blockchain.user[wallet] = {
-           "balance": 1.0,
+           "balance": 0,
            "password": password
       }
       return wallet
@@ -124,21 +127,22 @@ class Blockchain(object):
 
     def proof_of_work(self, index, hash_of_previous_block, transaction):
       nonce = 0
+      timestamp = time()
 
       while self.valid_proof(index, hash_of_previous_block, transaction, nonce) is False:
         nonce += 1
             
-      return nonce
+      return nonce, timestamp
       
 
 
     def valid_proof(self, index, hash_of_previous_block, transaction, nonce):
         content = f'{index}{hash_of_previous_block}{transaction}{nonce}'.encode()
+        first_hash = hashlib.sha256(content).hexdigest()
+        content_hash = hashlib.sha256(first_hash.encode()).hexdigest()
 
-        content_hash = hashlib.sha256(content).hexdigest()
-
-        return content_hash[:len(self.difficulty_target)] == self.difficulty_target
-        
+        return int(content_hash, 16) < self.difficulty_target
+    
     def append_block(self, nonce, hash_of_previous_block):
         block = {
             'index' : len(self.chain),
@@ -176,6 +180,12 @@ class Blockchain(object):
             'amount': amount,
             'miner': miner,
         })
+    def get_current_reward(self):
+        halvings = len(self.chain) // self.halving_interval
+
+        if halvings >= 64:
+            return 0
+        return self.initial_reward / (2 ** halvings)
          
 
     @property
@@ -203,8 +213,13 @@ def full_chain():
 
 @app.route('/mine', methods=['GET'])
 def mine_block(): 
- if (blockchain.delaytransaction != []):
     values = request.get_json()
+
+    if values["wallet"] not in blockchain.user:
+        return jsonify({
+            'status': "Failed",
+            'message': "Invalid wallet, make sure wallet is available",
+                })
 
     # blockchain.add_transaction(blockchain.delaytransaction);
 
@@ -217,19 +232,22 @@ def mine_block():
         requests.get(f'http://{node}/nodes/sync')
 
     response = {
+        'status': "Successfully",
         'message': "block successfully create",
         'index': block['index'],
         'hash_of_previous_block': block['hash_of_previous_block'],
         'nonce': block['nonce'],
         'transaction': block['transaction'],
     }
-    
+
+    current_reward = blockchain.get_current_reward()
+
     blockchain.reward(
         miner=values['wallet'],
-        amount=0.00005,
+        amount=current_reward,
     )
     
-    blockchain.user[values['wallet']]['balance'] += 0.00005
+    blockchain.user[values['wallet']]['balance'] += current_reward
     
     blockchain.add_transaction()
 
@@ -237,12 +255,6 @@ def mine_block():
 
     return jsonify(response), 200
 
- else:
-    response = {
-        'message': "block failed to create (nothing transaction) or your wallet is invalid",
-        'error':'404',
-    }
-    return jsonify(response), 200
 
 @app.route('/user/new', methods=['POST'])
 def new_user():
@@ -294,18 +306,18 @@ def new_transaction():
                     'recipient': blockchain.recipient,
                 })
             else:
-                return jsonify({'message': "You can't send coin in your own wallet"})
+                return jsonify({'status': "Failed", 'message': "You can't send coin in your own wallet"})
         else:
-            return jsonify({'message': 'Your balance not Enough to do Transaction'})
+            return jsonify({'status': "Failed", 'message': 'Your balance not Enough to do Transaction'})
 
         blockchain.sender = "";
         blockchain.recipient = "";
         blockchain.amount = "";
         blockchain.password = "";
 
-        return jsonify({'message': 'Transaction successfully created'}), 200
+        return jsonify({'status': "Successfully", 'message': 'Transaction successfully created'}), 200
     else:
-        return jsonify({'message': 'Transaction failed'}), 400
+        return jsonify({'status': "Failed", 'message': 'Transaction failed'}), 400
 
 # add nodes 
 @app.route('/add/node', methods=['GET'])
@@ -327,6 +339,7 @@ def add_node():
 def sync():
     blockchain.update_blockchain()
     response = {
+           'status': "Successfully",
            'message': 'blockhain already update',
            'nodes': list(blockchain.nodes)
     }
