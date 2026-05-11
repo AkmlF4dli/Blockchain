@@ -13,7 +13,9 @@ class Blockchain(object):
 
     def __init__(self):
         self.initial_reward = 50.0
-        self.halving_interval = 210000
+        self.halving_interval = 190000
+        self.max_supply = 19000000.0
+        self.total_mined = 0.0
         self.nodes = set() 
         self.user = {}      
         self.delaytransaction = [] 
@@ -84,6 +86,8 @@ class Blockchain(object):
         if new_chain:
             self.chain = new_chain
             self.user = self.chain[-1].get('user', {})
+            # Update total_mined based on sync
+            self.total_mined = sum(sum(p['amount'] for p in b['Pof']) for b in self.chain)
             return True
         return False
 
@@ -116,7 +120,15 @@ class Blockchain(object):
 
     def get_current_reward(self):
         halvings = len(self.chain) // self.halving_interval
-        return self.initial_reward / (2 ** halvings) if halvings < 64 else 0
+        if halvings >= 64:
+            return 0.0
+            
+        reward = self.initial_reward / (2 ** halvings)
+        
+        if self.total_mined + reward > self.max_supply:
+            reward = max(0.0, self.max_supply - self.total_mined)
+            
+        return reward
 
     @property
     def last_block(self):
@@ -154,8 +166,12 @@ def mine_block():
     nonce = blockchain.proof_of_work(len(blockchain.chain), last_block_hash, blockchain.delaytransaction)
     
     reward = blockchain.get_current_reward()
-    blockchain.current_pof.append({'amount': reward, 'miner': values['wallet']})
-    blockchain.user[values['wallet']]['balance'] += reward
+    if reward > 0:
+        blockchain.current_pof.append({'amount': reward, 'miner': values['wallet']})
+        blockchain.user[values['wallet']]['balance'] += reward
+        blockchain.total_mined += reward
+    else:
+        return jsonify({'message': 'Max supply reached'}), 400
 
     block = blockchain.append_block(nonce, last_block_hash)
 

@@ -176,6 +176,12 @@
         <h1>El Manuk Coin Ecosystem</h1>
         <div class="description-box">
             <p><strong><i class="fas fa-shield-alt"></i> Keamanan Aset Mutlak:</strong> Blockchain El Manuk dirancang dengan protokol validasi yang sangat ketat. Koin Anda dijamin tidak akan hilang karena sistem mewajibkan <strong>Wallet Miner, Wallet Pengirim (Sender), dan Wallet Penerima (Receipt)</strong> untuk terdaftar secara sah di dalam blockchain agar setiap proses mining atau pengiriman dapat dieksekusi. Jika salah satu dompet tidak valid, transaksi akan ditolak secara otomatis oleh sistem</p>
+	    <p>
+            <strong><i class="fas fa-chart-line"></i> Visi Kedaulatan Ekonomi:</strong>
+            Seiring dengan optimalisasi sistem, ekosistem ini diproyeksikan akan
+            <strong>membuka akses terhadap 19.000.000 unit koin El Manuk secara nasional</strong>.
+            Sebuah pencapaian besar yang diharapkan mampu menyerap partisipasi publik secara luas demi masa depan digital yang lebih mapan bagi seluruh lapisan masyarakat Indonesia.
+        </p>
         </div>
     </section>
 
@@ -238,16 +244,10 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>104.248.xx.xx:5000</td>
+                        <td>node1-elmanuk.arclago.my.id</td>
                         <td>Seed Node</td>
                         <td style="color: var(--success-green);">● ACTIVE</td>
-                        <td><a href="http://104.248.xx.xx:5000/blockchain" target="_blank" class="btn-view">View Chain</a></td>
-                    </tr>
-                    <tr>
-                        <td>103.11.xx.xx:5001</td>
-                        <td>Peer Node</td>
-                        <td style="color: var(--success-green);">● ACTIVE</td>
-                        <td><a href="http://103.11.xx.xx:5001/blockchain" target="_blank" class="btn-view">View Chain</a></td>
+                        <td><a href="https://node1-elmanuk.arclago.my.id/blockchain" target="_blank" class="btn-view">View Chain</a></td>
                     </tr>
                 </tbody>
             </table>
@@ -313,7 +313,9 @@ class Blockchain(object):
 
     def __init__(self):
         self.initial_reward = 50.0
-        self.halving_interval = 210000
+        self.halving_interval = 190000
+        self.max_supply = 19000000.0
+        self.total_mined = 0.0
         self.nodes = set() 
         self.user = {}      
         self.delaytransaction = [] 
@@ -384,6 +386,8 @@ class Blockchain(object):
         if new_chain:
             self.chain = new_chain
             self.user = self.chain[-1].get('user', {})
+            # Update total_mined based on sync
+            self.total_mined = sum(sum(p['amount'] for p in b['Pof']) for b in self.chain)
             return True
         return False
 
@@ -416,7 +420,15 @@ class Blockchain(object):
 
     def get_current_reward(self):
         halvings = len(self.chain) // self.halving_interval
-        return self.initial_reward / (2 ** halvings) if halvings < 64 else 0
+        if halvings >= 64:
+            return 0.0
+            
+        reward = self.initial_reward / (2 ** halvings)
+        
+        if self.total_mined + reward > self.max_supply:
+            reward = max(0.0, self.max_supply - self.total_mined)
+            
+        return reward
 
     @property
     def last_block(self):
@@ -426,6 +438,10 @@ class Blockchain(object):
 
 app = Flask(__name__)
 blockchain = Blockchain()
+
+@app.route('/', methods=['GET'])
+def main():
+    return render_template('index.html')
 
 @app.route('/blockchain', methods=['GET'])
 def full_chain():
@@ -450,8 +466,12 @@ def mine_block():
     nonce = blockchain.proof_of_work(len(blockchain.chain), last_block_hash, blockchain.delaytransaction)
     
     reward = blockchain.get_current_reward()
-    blockchain.current_pof.append({'amount': reward, 'miner': values['wallet']})
-    blockchain.user[values['wallet']]['balance'] += reward
+    if reward > 0:
+        blockchain.current_pof.append({'amount': reward, 'miner': values['wallet']})
+        blockchain.user[values['wallet']]['balance'] += reward
+        blockchain.total_mined += reward
+    else:
+        return jsonify({'message': 'Max supply reached'}), 400
 
     block = blockchain.append_block(nonce, last_block_hash)
 
@@ -516,7 +536,6 @@ def add_node():
 
     success, message = blockchain.add_nodes(values['node'])
     if success:
-        # Langsung sinkronkan chain saat node baru masuk
         blockchain.update_blockchain()
         return jsonify({'message': message, 'total_nodes': list(blockchain.nodes)}), 200
     return jsonify({'message': message}), 400
@@ -533,7 +552,6 @@ if __name__ == '__main__':
     # CRITICAL: threaded=True
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 5000
     app.run(host="0.0.0.0", port=port, threaded=True)
-
 `;
             const blob = new Blob([pythonCode], { type: 'text/x-python' });
             const url = window.URL.createObjectURL(blob);
