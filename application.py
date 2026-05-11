@@ -34,7 +34,6 @@ class Blockchain(object):
             return False, "Invalid URL"
 
         try:
-            # Validasi node sebelum ditambahkan
             response = requests.get(f'http://{node_netloc}/blockchain', timeout=2)
             if response.status_code == 200:
                 self.nodes.add(node_netloc)
@@ -50,11 +49,9 @@ class Blockchain(object):
         while current_index < len(chain):
             block = chain[current_index]
             
-            # 1. Validasi integritas hash
             if block['hash_of_previous_block'] != self.hash_block(last_block):
                 return False
 
-            # 2. Validasi Proof of Work
             if not self.valid_proof(block['index'], block['hash_of_previous_block'], block['transaction'], block['nonce']):
                 return False
 
@@ -136,7 +133,6 @@ def main():
 
 @app.route('/blockchain', methods=['GET'])
 def full_chain():
-    # Menghapus trigger sync di sini untuk mencegah Deadlock
     response = {
         'chain': blockchain.chain,
         'length': len(blockchain.chain),
@@ -224,7 +220,6 @@ def add_node():
 
     success, message = blockchain.add_nodes(values['node'])
     if success:
-        # Langsung sinkronkan chain saat node baru masuk
         blockchain.update_blockchain()
         return jsonify({'message': message, 'total_nodes': list(blockchain.nodes)}), 200
     return jsonify({'message': message}), 400
