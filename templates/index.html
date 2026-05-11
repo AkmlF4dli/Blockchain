@@ -179,9 +179,10 @@
         </div>
     </section>
 
-    <section id="requirements">
+<section id="requirements">
         <h2><i class="fas fa-list-ul"></i> System Requirements</h2>
-        <p>Gunakan perintah di bawah ini untuk menginstal pustaka yang diperlukan agar node dapat berjalan[cite: 1]:</p>
+        <p>Gunakan perintah di bawah ini untuk menginstal pustaka yang diperlukan agar node dapat berjalan:</p>
+        
         <div class="req-list">
             <div class="req-item">
                 <i class="fab fa-python"></i>
@@ -192,20 +193,37 @@
                 <div>Flask 3.1.0</div>
             </div>
             <div class="req-item">
+                <i class="fas fa-shield-alt"></i>
+                <div>Bcrypt 4.3.0</div>
+            </div>
+            <div class="req-item">
                 <i class="fas fa-network-wired"></i>
                 <div>Requests 2.32.3</div>
+            </div>
+            <div class="req-item">
+                <i class="fas fa-code"></i>
+                <div>Jinja2 3.1.6</div>
             </div>
             <div class="req-item">
                 <i class="fas fa-plug"></i>
                 <div>Open Port (e.g. 5000)</div>
             </div>
         </div>
+
         <div class="terminal-container" style="margin-top: 30px;">
-            <div class="terminal-header"><span>Instalasi Library</span><button class="copy-btn" onclick="copyCode('install')">Copy</button></div>
-            <div class="terminal"><code id="install">pip install Flask==3.1.0 requests==2.32.3</code></div>
+            <div class="terminal-header">
+                <span>Instalasi Library Lengkap</span>
+                <button class="copy-btn" onclick="copyCode('install')">Copy</button>
+            </div>
+            <div class="terminal">
+                <code id="install">pip install bcrypt==4.3.0 blinker==1.9.0 certifi==2025.4.26 charset-normalizer==3.4.2 click==8.1.8 colorama==0.4.6 distlib==0.3.9 filelock==3.18.0 Flask==3.1.0 idna==3.10 itsdangerous==2.2.0 Jinja2==3.1.6 MarkupSafe==3.0.2 platformdirs==4.3.8 requests==2.32.3 urllib3==2.4.0 virtualenv==20.31.2 Werkzeug==3.1.3</code>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px; font-size: 0.9em; color: #94a3b8;">
+            <p><strong>Note:</strong> Pastikan Anda menggunakan <i>virtual environment</i> untuk menghindari konflik antar pustaka.</p>
         </div>
     </section>
-
     <section id="nodes">
         <h2>Network Peer List</h2>
         <div class="table-container">
