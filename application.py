@@ -130,6 +130,10 @@ class Blockchain(object):
 app = Flask(__name__)
 blockchain = Blockchain()
 
+@app.route('/', methods=['GET'])
+def main():
+    return render_template('index.html')
+
 @app.route('/blockchain', methods=['GET'])
 def full_chain():
     # Menghapus trigger sync di sini untuk mencegah Deadlock

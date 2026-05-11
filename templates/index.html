@@ -280,7 +280,7 @@
 
         <div class="terminal-container">
             <div class="terminal-header"><span>5. Tambah Node Peer</span><button class="copy-btn" onclick="copyCode('code5')">Copy</button></div>
-            <div class="terminal"><code id="code5">curl -X GET http://localhost:5000/add/node -H "Content-Type: application/json" -d '{"node": "104.248.xx.xx:5000"}'</code></div>
+            <div class="terminal"><code id="code5">curl -X POST http://localhost:5000/add/node -H "Content-Type: application/json" -d '{"node": "104.248.xx.xx:5000"}'</code></div>
         </div>
     </section>
 
