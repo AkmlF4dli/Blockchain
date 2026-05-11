@@ -36,7 +36,7 @@ class Blockchain(object):
             return False, "Invalid URL"
 
         try:
-            response = requests.get(f'http://{node_netloc}/blockchain', timeout=2)
+            response = requests.get(f'https://{node_netloc}/blockchain', timeout=2)
             if response.status_code == 200:
                 self.nodes.add(node_netloc)
                 return True, "Node validated and added"
@@ -71,7 +71,7 @@ class Blockchain(object):
 
         for node in neighbours:
             try:
-                response = requests.get(f'http://{node}/blockchain', timeout=3)
+                response = requests.get(f'https://{node}/blockchain', timeout=3)
                 if response.status_code == 200:
                     length = response.json()['length']
                     chain = response.json()['chain']
@@ -177,7 +177,7 @@ def mine_block():
 
     for node in blockchain.nodes:
         try:
-            requests.get(f'http://{node}/nodes/sync', timeout=1)
+            requests.get(f'https://{node}/nodes/sync', timeout=1)
         except:
             pass
 
