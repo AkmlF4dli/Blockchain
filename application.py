@@ -197,11 +197,6 @@ app = Flask(__name__)
 
 blockchain = Blockchain()
 
-
-@app.route('/', methods=['GET'])
-def main():
-    return render_template('index.html')
-
 @app.route('/blockchain', methods=['GET'])
 def full_chain():
     for node in blockchain.nodes:
