@@ -7,7 +7,7 @@ import uuid
 from time import time
 from uuid import uuid4
 
-from flask import Flask
+from flask import Flask, render_template
 from flask.globals import request
 from flask.json import jsonify
 
@@ -196,6 +196,11 @@ app = Flask(__name__)
 
 
 blockchain = Blockchain()
+
+
+@app.route('/', methods=['GET'])
+def main():
+    return render_template('index.html')
 
 @app.route('/blockchain', methods=['GET'])
 def full_chain():

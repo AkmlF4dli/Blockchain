@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Manuk Coin | Official Node Controller</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #ffcc00;
+            --dark-bg: #0b0f1a;
+            --card-bg: #161e2d;
+            --text-light: #e2e8f0;
+            --accent-cyan: #00f2ff;
+            --success-green: #4ade80;
+        }
+
+        * { scroll-behavior: smooth; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 15px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(11, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary-gold);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        nav { display: flex; align-items: center; gap: 20px; }
+        nav a { color: #94a3b8; text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.3s; }
+        nav a:hover { color: var(--primary-gold); }
+
+        .btn-download {
+            background: var(--primary-gold);
+            color: #000 !important;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        section { padding: 80px 10% 60px; border-bottom: 1px solid #1e293b; }
+
+        .hero {
+            text-align: center;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0b0f1a 100%);
+            padding-top: 120px;
+        }
+
+        h1 { font-size: 48px; color: var(--primary-gold); margin-bottom: 20px; }
+        h2 { color: var(--primary-gold); margin-bottom: 25px; }
+        
+        .description-box {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary-gold);
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .description-box i { color: var(--primary-gold); margin-right: 10px; }
+
+        .terminal-container { margin-bottom: 30px; position: relative; }
+        .terminal-header {
+            background: #334155;
+            padding: 10px 20px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .terminal {
+            background: #000;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            border: 1px solid #334155;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        code { color: var(--accent-cyan); font-size: 14px; white-space: pre; }
+        .comment { color: #64748b; font-style: italic; display: block; margin-bottom: 8px; }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #64748b;
+            color: #64748b;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.2s;
+        }
+        .copy-btn:hover { color: var(--primary-gold); border-color: var(--primary-gold); }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2d3748;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1e293b; padding: 15px; text-align: left; color: #94a3b8; font-size: 12px; }
+        td { padding: 15px; border-bottom: 1px solid #2d3748; font-family: monospace; font-size: 13px; }
+
+        .btn-view {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            border: 1px solid var(--accent-cyan);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        footer { padding: 40px; text-align: center; color: #475569; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo"><i class="fas fa-dove"></i> EL MANUK</a>
+        <nav>
+            <a href="#nodes">Nodes List</a>
+            <a href="#cli">CLI Guide</a>
+            <a href="javascript:void(0)" class="btn-download" onclick="downloadApp()">
+                <i class="fas fa-download"></i> Download App
+            </a>
+        </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <h1>El Manuk Coin Ecosystem</h1>
+        <div class="description-box">
+            <p><strong><i class="fas fa-shield-alt"></i> Keamanan Aset Mutlak:</strong> Blockchain El Manuk dirancang dengan validasi ketat. Koin Anda tidak akan pernah hilang atau terkirim ke ruang hampa karena setiap proses (Mining maupun Transaksi) mewajibkan <strong>Wallet Miner, Wallet Pengirim, dan Wallet Penerima</strong> berstatus valid dan terdaftar secara resmi di dalam database blockchain.</p>
+            <p style="margin-top: 10px;"><i class="fas fa-info-circle"></i> Menggunakan algoritma PoW dengan kesulitan dinamis dan mekanisme Halving berkala untuk menjaga nilai kelangkaan koin.</p>
+        </div>
+    </section>
+
+    <section id="nodes">
+        <h2>Network Peer List</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Node Address</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Explorer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>104.248.xx.xx:5000</td>
+                        <td>Seed Node</td>
+                        <td style="color: var(--success-green);">● ACTIVE</td>
+                        <td><a href="http://104.248.xx.xx:5000/blockchain" target="_blank" class="btn-view">View Chain</a></td>
+                    </tr>
+                    <tr>
+                        <td>103.11.xx.xx:5001</td>
+                        <td>Peer Node</td>
+                        <td style="color: var(--success-green);">● ACTIVE</td>
+                        <td><a href="http://103.11.xx.xx:5001/blockchain" target="_blank" class="btn-view">View Chain</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="cli">
+        <h2>CLI Guide (Copy Commands)</h2>
+        <p style="color: #94a3b8; margin-bottom: 30px;">Gunakan perintah curl di bawah ini untuk mengontrol node lokal Anda.</p>
+
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <span>1. Menjalankan Node</span>
+                <button class="copy-btn" onclick="copyCode('code1')">Copy</button>
+            </div>
+            <div class="terminal">
+                <code id="code1">python application.py 5000</code>
+            </div>
+        </div>
+
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <span>2. Registrasi Wallet Baru</span>
+                <button class="copy-btn" onclick="copyCode('code2')">Copy</button>
+            </div>
+            <div class="terminal">
+                <code id="code2">curl -X POST http://localhost:5000/user/new -H "Content-Type: application/json" -d '{"password": "YOUR_PASSWORD"}'</code>
+            </div>
+        </div>
+
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <span>3. Kirim Transaksi (Transfer)</span>
+                <button class="copy-btn" onclick="copyCode('code3')">Copy</button>
+            </div>
+            <div class="terminal">
+                <code id="code3">curl -X POST http://localhost:5000/transaction/new -H "Content-Type: application/json" -d '{"sender": "ADDR_SENDER", "recipient": "ADDR_RECEIPT", "amount": "10.0", "password": "YOUR_PASSWORD"}'</code>
+            </div>
+        </div>
+
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <span>4. Proses Mining (Dapatkan Reward)</span>
+                <button class="copy-btn" onclick="copyCode('code4')">Copy</button>
+            </div>
+            <div class="terminal">
+                <code id="code4">curl -X GET http://localhost:5000/mine -H "Content-Type: application/json" -d '{"wallet": "ADDR_MINER"}'</code>
+            </div>
+        </div>
+
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <span>5. Hubungkan ke Peer Network</span>
+                <button class="copy-btn" onclick="copyCode('code5')">Copy</button>
+            </div>
+            <div class="terminal">
+                <code id="code5">curl -X GET http://localhost:5000/add/node -H "Content-Type: application/json" -d '{"node": "104.248.xx.xx:5000"}'</code>
+            </div>
+        </div>
+
+    </section>
+
+    <footer>
+        &copy; 2026 El Manuk Coin Project. Official Documentation.
+    </footer>
+
+    <script>
+        function copyCode(id) {
+            const code = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Perintah berhasil disalin!");
+            });
+        }
+
+        function downloadApp() {
+            // Isi dengan script application.py asli milikmu
+            const pythonCode = `
+
+
+	    import sys
+import hashlib
+import json
+import requests
+import uuid
+
+from time import time
+from uuid import uuid4
+
+from flask import Flask, render_template
+from flask.globals import request
+from flask.json import jsonify
+
+from urllib.parse import urlparse
+
+class Blockchain(object):
+    difficulty_bits = 20
+    difficulty_target = 2**(256 - difficulty_bits)
+
+    def hash_block(self, block):
+      block_encoded = json.dumps(block, sort_keys=True).encode()
+      inner_hash = hashlib.sha256(block_encoded).digest()
+      return hashlib.sha256(inner_hash).hexdigest()
+
+
+    def adddelay(self):
+        self.delaytransaction.append({
+             "amount": self.amount,
+             "recipient": self.recipient,
+             "sender": self.sender,
+        })
+
+    def __init__(self):
+      self.initial_reward = 50.0
+      self.halving_interval = 210000
+      self.addnode = ""
+      self.nodes = []
+
+      self.users = '''{
+
+      }'''
+      self.user = json.loads(self.users)
+      self.delaytransaction = []
+
+      self.sender = ""
+      self.recipient = ""
+      self.amount = ""
+      self.password = ""
+
+      self.chain = []
+
+      self.current_transaction = []
+
+      self.current_pof = []
+
+      genesis_hash = self.hash_block("ini genesis hash")
+
+      self.append_block(
+            hash_of_previous_block = genesis_hash,
+            nonce = self.proof_of_work(0, genesis_hash, [])
+      )
+
+# multiple nodes
+    def add_nodes(self):
+        self.nodes.append(self.addnode)
+
+    def valid_chain(self, chain):
+        last_block = chain[0]
+        current_index = 1
+
+        while current_index == len(chain):
+            block = chain[current_index]
+
+            if block['hash_of_previous_block'] != self.hash_block[last_block]:
+                return False
+
+            if not self.valid_proof(
+                    address_index,
+                    block['hash_of_previous_block'],
+                    block['transaction'],
+                    block['nonce']):
+                    return False
+
+            last_block = block
+            current_block += 1
+
+        return True
+
+    def update_blockchain(self):
+        neighbours = self.nodes
+        new_chain = None
+
+        max_length = len(self.chain)
+
+        for node in neighbours:
+            response = requests.get(f'http://{node}/blockchain')
+
+            if response.status_code == 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
+                user = chain[0].get('user', {})
+
+                if length > max_length and self.valid_chain(chain):
+                    max_length = length
+                    max_chain = chain
+                    new_chain = chain
+                    new_user = user
+
+                if new_chain:
+                    self.chain = new_chain
+                    self.user = new_user
+                    return True
+
+        return False
+
+    def add_user(self, password):
+      password = self.generate_sha256(password)
+
+      wallet = uuid.uuid4().hex
+
+      blockchain.user[wallet] = {
+           "balance": 0,
+           "password": password
+      }
+      return wallet
+
+
+    def proof_of_work(self, index, hash_of_previous_block, transaction):
+      nonce = 0
+      timestamp = time()
+
+      while self.valid_proof(index, hash_of_previous_block, transaction, nonce) is False:
+        nonce += 1
+
+      return nonce, timestamp
+
+
+
+    def valid_proof(self, index, hash_of_previous_block, transaction, nonce):
+        content = f'{index}{hash_of_previous_block}{transaction}{nonce}'.encode()
+        first_hash = hashlib.sha256(content).hexdigest()
+        content_hash = hashlib.sha256(first_hash.encode()).hexdigest()
+
+        return int(content_hash, 16) < self.difficulty_target
+
+    def append_block(self, nonce, hash_of_previous_block):
+        block = {
+            'index' : len(self.chain),
+            'timestamp' : time(),
+            'transaction' : self.current_transaction,
+            'Pof (proof of work)': self.current_pof,
+            'nonce': nonce,
+            'hash_of_previous_block': hash_of_previous_block,
+            'user' : self.user,
+
+        }
+
+        self.chain.append(block)
+
+        return block
+
+    def generate_sha256(self, password):
+        sha256_hash = hashlib.sha256()
+
+        sha256_hash.update(password.encode())
+        return sha256_hash.hexdigest()
+
+    def add_transaction(self):
+        self.current_transaction.append(self.delaytransaction)
+        return self.last_block['index'] + 1
+
+    # def add_transaction(self, delaytransaction):
+    #      self.current_transaction.append(self.delaytransaction)
+    #      self.delaytransaction = []
+
+    #      return self.last_block['index'] + 1
+
+    def reward(self, miner, amount):
+        self.current_pof.append({
+            'amount': amount,
+            'miner': miner,
+        })
+    def get_current_reward(self):
+        halvings = len(self.chain) // self.halving_interval
+
+        if halvings >= 64:
+            return 0
+        return self.initial_reward / (2 ** halvings)
+
+
+    @property
+    def last_block(self):
+        return self.chain[-1]
+
+app = Flask(__name__)
+
+
+blockchain = Blockchain()
+
+
+@app.route('/', methods=['GET'])
+def main():
+    return render_template('index.html')
+
+@app.route('/blockchain', methods=['GET'])
+def full_chain():
+    for node in blockchain.nodes:
+        requests.get('http://{node}/nodes/sync')
+
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain),
+    }
+
+    return jsonify(response), 200
+
+
+
+@app.route('/mine', methods=['GET'])
+def mine_block():
+    values = request.get_json()
+
+    if values["wallet"] not in blockchain.user:
+        return jsonify({
+            'status': "Failed",
+            'message': "Invalid wallet, make sure wallet is available",
+                })
+
+    # blockchain.add_transaction(blockchain.delaytransaction);
+
+    last_block_hash = blockchain.hash_block(blockchain.last_block)
+    index = len(blockchain.chain)
+    nonce = blockchain.proof_of_work(index, last_block_hash, blockchain.current_transaction)
+    block = blockchain.append_block(nonce, last_block_hash)
+
+    for node in blockchain.nodes:
+        requests.get(f'http://{node}/nodes/sync')
+
+    response = {
+        'status': "Successfully",
+        'message': "block successfully create",
+        'index': block['index'],
+        'hash_of_previous_block': block['hash_of_previous_block'],
+        'nonce': block['nonce'],
+        'transaction': block['transaction'],
+    }
+
+    current_reward = blockchain.get_current_reward()
+
+    blockchain.reward(
+        miner=values['wallet'],
+        amount=current_reward,
+    )
+
+    blockchain.user[values['wallet']]['balance'] += current_reward
+
+    blockchain.add_transaction()
+
+    blockchain.delaytransaction = []
+
+    return jsonify(response), 200
+
+
+@app.route('/user/new', methods=['POST'])
+def new_user():
+    values = request.get_json()
+
+    required_fields = ['password']
+    if not all(k in values for k in required_fields):
+        return jsonify({'message': 'Missing fields'}), 400
+
+    create_user = blockchain.add_user(values['password'])
+    return jsonify({'message': 'Successfully created your wallet is: ' + create_user})
+
+
+@app.route('/transaction/new', methods=['POST'])
+def new_transaction():
+    values = request.get_json()
+
+    required_fields = ['sender', 'recipient', 'amount', 'password']
+    if not all(k in values for k in required_fields):
+        return jsonify({'message': 'Missing fields'}), 400
+
+    # if values['sender'] in blockchain.user and values['recipient'] in blockchain.user:
+        # sender = hashlib.sha256(values['sender'].encode()).hexdigest()
+        # recipient = hashlib.sha256(values['recipient'].encode()).hexdigest()
+
+        #blockchain.sender.append(sender)
+        #blockchain.recipient.append(recipient)
+        #blockchain.amount.append(values['amount'])
+
+
+    blockchain.sender = values['sender'];
+    blockchain.recipient = values['recipient'];
+    blockchain.amount = round(float(values['amount']), 2);
+    blockchain.password = values['password'];
+
+    # sender = ''.join([char for index, char in enumerate(values['sender']) if index != 0])
+
+    password = blockchain.generate_sha256(blockchain.password)
+
+    if(password == blockchain.user[blockchain.sender]['password']):
+        if (float(blockchain.user[values['sender']]['balance']) - blockchain.amount >= 0.000):
+            if (values['sender'] != values['recipient']):
+                blockchain.user[values['sender']]['balance'] -= blockchain.amount
+                blockchain.user[values['recipient']]['balance'] += blockchain.amount
+
+                blockchain.delaytransaction.append({
+                    'amount' : blockchain.amount,
+                    'sender': blockchain.sender,
+                    'recipient': blockchain.recipient,
+                })
+            else:
+                return jsonify({'status': "Failed", 'message': "You can't send coin in your own wallet"})
+        else:
+            return jsonify({'status': "Failed", 'message': 'Your balance not Enough to do Transaction'})
+
+        blockchain.sender = "";
+        blockchain.recipient = "";
+        blockchain.amount = "";
+        blockchain.password = "";
+
+        return jsonify({'status': "Successfully", 'message': 'Transaction successfully created'}), 200
+    else:
+        return jsonify({'status': "Failed", 'message': 'Transaction failed'}), 400
+
+# add nodes
+@app.route('/add/node', methods=['GET'])
+def add_node():
+    values = request.get_json()
+
+    if(values['node']):
+        blockchain.addnode = values['node']
+        blockchain.add_nodes()
+        for node in blockchain.nodes:
+            requests.get(f'http://{node}/nodes/sync')
+
+        return jsonify({'message': 'Nodes berhasil di tambahkan'})
+
+
+# route multiple nodes
+
+@app.route('/nodes/sync', methods=['GET'])
+def sync():
+    blockchain.update_blockchain()
+    response = {
+           'status': "Successfully",
+           'message': 'blockhain already update',
+           'nodes': list(blockchain.nodes)
+    }
+    return jsonify(response), 200
+
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=int(sys.argv[1]))
+
+`;
+            const blob = new Blob([pythonCode], { type: 'text/x-python' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ElManuk-v1.0.py';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
