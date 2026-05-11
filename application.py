@@ -1,4 +1,3 @@
-import sys
 import hashlib
 import json
 import requests
@@ -61,7 +60,7 @@ class Blockchain(object):
 
     def update_blockchain(self):
         """
-        Konsensus: Mengganti chain lokal dengan yang terpanjang di jaringan.
+        Konsensus: Mengganti manuk lokal dengan manuk terpanjang di jaringan.
         """
         neighbours = self.nodes
         new_chain = None
@@ -74,7 +73,7 @@ class Blockchain(object):
                     length = response.json()['length']
                     chain = response.json()['chain']
 
-                    # Panjang panjangan Manuk
+                    # Panjang panjangan Manuk antar Nodes
                     if length > max_length and self.valid_chain(chain):
                         max_length = length
                         new_chain = chain
