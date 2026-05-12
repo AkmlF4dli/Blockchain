@@ -1,3 +1,4 @@
+
 import sys
 import hashlib
 import json
@@ -46,7 +47,7 @@ class Blockchain(object):
 
     def valid_chain(self, chain):
         last_block = chain[0]
-        current_index = 1
+        current_index = len(self.chain) + 1
 
         while current_index < len(chain):
             block = chain[current_index]
@@ -252,3 +253,4 @@ if __name__ == '__main__':
     # CRITICAL: threaded=True
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 5000
     app.run(host="0.0.0.0", port=port, threaded=True)
+
